@@ -28,20 +28,6 @@ MT->add_plugin($plugin);
 #----- Transformer(MT4)
 MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt4_param);
 
-
-
-sub instance { $plugin; }
-
-sub doLog {
-    my ($msg) = @_; 
-    return unless defined($msg);
-
-    use MT::Log;
-    my $log = MT::Log->new;
-    $log->message($msg) ;
-    $log->save or die $log->errstr;
-}
-
 #----- Transformer(MT4)
 
 sub hdlr_mt4_param {
@@ -130,19 +116,16 @@ function taghelper_action(s) {
 
 </script>
 
-<a href="javascript: void(taghelper_open())" class="add-new-category-link">exist tags</a>
+<a href="javascript: void(taghelper_open())" class="add-new-category-link"><__trans phrase="old tags"></a>
 <div id="tagging_helper_block" style="display: none;"></div>
 EOT
- 
+    $html = $plugin->translate_templatized($html); 
     die 'something wrong...' unless UNIVERSAL::isa($tmpl, 'MT::Template');
  
     my $host_node = $tmpl->getElementById('tags')
         or die 'cannot get useful-links block';
 
     $host_node->innerHTML($host_node->innerHTML . $html);
-#    my $node = $tmpl->createElement( 'TEXT', $html );
-#    $tmpl->insertAfter($node, $host_node)
-#        or die 'failed to insertBefore.';
     1;
 }
 

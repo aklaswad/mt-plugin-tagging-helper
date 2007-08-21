@@ -7,6 +7,7 @@ use base 'TaggingHelper::L10N';
 use vars qw( %Lexicon );
 
 %Lexicon = (
+    'description of TaggingHelper' => 'help your tagging in entry editor.',
 );
 
 1;
