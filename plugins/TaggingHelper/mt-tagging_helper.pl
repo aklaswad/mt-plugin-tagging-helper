@@ -80,10 +80,10 @@ function taghelper_open() {
         var tag = tagary[i];
         var exp = new RegExp("^(.*, ?)?" + tag + "( ?\,.*)?$");
         if (exp.test(v)) {
-            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + '</a>';
+            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </a>';
         }
         else {
-            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + '</a>';
+            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </a>';
         }
     }
         
