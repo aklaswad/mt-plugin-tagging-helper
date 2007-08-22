@@ -9,7 +9,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.1';
+$VERSION = '0.2';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
@@ -17,23 +17,27 @@ my $plugin = new MT::Plugin::TaggingHelper({
     version => $VERSION,
     description => "<MT_TRANS phrase='description of TaggingHelper'>",
     doc_link => 'http://blog.aklaswad.com/mtplugins/tagginghelper/',
-    author_name => 'Akira Sawada',
+    author_name => 'akira sawada',
     author_link => 'http://blog.aklaswad.com/',
     l10n_class => 'TaggingHelper::L10N',
 });
 
 MT->add_plugin($plugin);
 
-#----- Transformer
-#----- Transformer(MT4)
-MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt4_param);
+my $mt_version = MT->version_number;
+if ($mt_version =~ /^4/){
+    MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt4_param);
+}
+else {
+    MT->add_callback('MT::App::CMS::AppTemplateSource.edit_entry', 9, $plugin, \&hdlr_mt3_source);
+}
 
-#----- Transformer(MT4)
-
-sub hdlr_mt4_param {
-    my ($eh, $app, $param, $tmpl) = @_;
+sub _build_html {
     my $html = <<'EOT';
 <style type="text/css">
+#tagging_helper_container {
+    width: 100%;
+}
 
 #tagging_helper_block {
     margin: 10px 0;
@@ -68,9 +72,9 @@ function taghelper_open() {
     function compareStrAscend(a, b){
         return a.localeCompare(b);
     }
-    var tagary = [];
+    var tagary = new Array;
     for (var tag in tags ){
-        tagary.add(tag);
+        tagary.push(tag);
     }
     
     tagary.sort(compareStrAscend);
@@ -115,11 +119,27 @@ function taghelper_action(s) {
 }
 
 </script>
-
-<a href="javascript: void(taghelper_open())" class="add-new-category-link"><__trans phrase="old tags"></a>
+<div id="tagging_helper_container">
+<a href="javascript: void(taghelper_open())" class="add-new-category-link"><MT_TRANS phrase="old tags"></a>
 <div id="tagging_helper_block" style="display: none;"></div>
+</div>
 EOT
-    $html = $plugin->translate_templatized($html); 
+    return $plugin->translate_templatized($html);
+}
+
+sub hdlr_mt3_source {
+    my ($eh, $app, $tmpl) = @_;
+    my $html = _build_html(); 
+    my $pattern = quotemeta(<<'EOT');
+<input name="tags" id="tags" tabindex="7" value="<TMPL_VAR NAME=TAGS ESCAPE=HTML>" onchange="setDirty()" />
+</div>
+EOT
+    $$tmpl =~ s!($pattern)!$1$html!;
+}
+
+sub hdlr_mt4_param {
+    my ($eh, $app, $param, $tmpl) = @_;
+    my $html = _build_html(); 
     die 'something wrong...' unless UNIVERSAL::isa($tmpl, 'MT::Template');
  
     my $host_node = $tmpl->getElementById('tags')
@@ -130,3 +150,4 @@ EOT
 }
 
 1;
+
