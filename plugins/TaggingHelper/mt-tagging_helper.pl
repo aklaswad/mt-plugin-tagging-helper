@@ -33,25 +33,60 @@ else {
 }
 
 sub _build_html {
+    my ($staticwebpath) = @_;
     my $html = <<'EOT';
 <style type="text/css">
+
 #tagging_helper_container {
+    cursor: Default;
     width: 100%;
+    text-align: right;
 }
 
 #tagging_helper_block {
+    cursor: Default;
+    text-align: left;
     margin: 10px 0;
     line-height: 1.8em;
 }
 
 .taghelper_tag {
+    cursor: Default;
+    color: #61889b;
     margin: 0 5px;
 }
 
+.taghelper_tag:hover {
+    cursor: Pointer;
+    color: #000;
+}
+
 .taghelper_tag_selected {
+    cursor: Default;
+    color: #41687b;
     margin: 0 5px;
     background-color: #def;
 }
+
+.taghelper_tag_selected:hover {
+    cursor: Pointer;
+    color: #000;
+}
+
+.taghelper_opener {
+    cursor: Default;
+    color: #61889b;
+    background-image: url(__staticwebpathimages/status_icons/create.gif);
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 11px;
+}
+
+.taghelper_opener:hover {
+    cursor: Pointer;
+    color: #a2ad00;
+}
+
 
 </style>
 
@@ -84,10 +119,10 @@ function taghelper_open() {
         var tag = tagary[i];
         var exp = new RegExp("^(.*, ?)?" + tag + "( ?\,.*)?$");
         if (exp.test(v)) {
-            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </a>';
+            block.innerHTML += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
         else {
-            block.innerHTML += '<a href="javascript:void(taghelper_action(\'' + tag + '\'))" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </a>';
+            block.innerHTML += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
     }
         
@@ -120,16 +155,18 @@ function taghelper_action(s) {
 
 </script>
 <div id="tagging_helper_container">
-<a href="javascript: void(taghelper_open())" class="add-new-category-link"><MT_TRANS phrase="old tags"></a>
+<span onclick="taghelper_open()" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
+    $html =~ s/__staticwebpath/$staticwebpath/;
     return $plugin->translate_templatized($html);
 }
 
 sub hdlr_mt3_source {
     my ($eh, $app, $tmpl) = @_;
-    my $html = _build_html(); 
+    my $staticwebpath = $app->config('StaticWebPath');
+    my $html = _build_html($staticwebpath); 
     my $pattern = quotemeta(<<'EOT');
 <input name="tags" id="tags" tabindex="7" value="<TMPL_VAR NAME=TAGS ESCAPE=HTML>" onchange="setDirty()" />
 </div>
@@ -139,7 +176,8 @@ EOT
 
 sub hdlr_mt4_param {
     my ($eh, $app, $param, $tmpl) = @_;
-    my $html = _build_html(); 
+    my $staticwebpath = $app->config('StaticWebPath');
+    my $html = _build_html($staticwebpath); 
     die 'something wrong...' unless UNIVERSAL::isa($tmpl, 'MT::Template');
  
     my $host_node = $tmpl->getElementById('tags')
