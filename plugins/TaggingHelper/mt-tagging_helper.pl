@@ -9,7 +9,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.2';
+$VERSION = '0.3';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
@@ -102,8 +102,16 @@ TaggingHelper.compareStrAscend = function (a, b){
     return a.localeCompare(b);
 }
 
+TaggingHelper.compareByCount = function (a, b){
+    return tags[b] - tags[a];
+}
+
 TaggingHelper.quotemeta = function (string) {
     return string.replace(/(\W)/, "\\$1");
+}
+
+TaggingHelper.getBody = function () {
+
 }
 
 TaggingHelper.open = function (mode) {
@@ -114,7 +122,7 @@ TaggingHelper.open = function (mode) {
     }
 
     var tagary = new Array();
-    if (mode == 'all') {
+    if (mode == 'abc' || mode == 'count') {
         for (var tag in tags ){
             tagary.push(tag);
         }
@@ -128,7 +136,10 @@ TaggingHelper.open = function (mode) {
             }
         }
     }
-    tagary.sort(this.compareStrAscend);
+    if (mode == 'count')
+        tagary.sort(this.compareByCount);
+    else
+        tagary.sort(this.compareStrAscend);
 
     var v = document.getElementById('tags').value;
     var taglist = '';
@@ -173,7 +184,8 @@ TaggingHelper.action = function (s) {
 
 </script>
 <div id="tagging_helper_container">
-<span id="taghelper_all" onclick="TaggingHelper.open('all')" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
+<span id="taghelper_abc" onclick="TaggingHelper.open('abc')" class="taghelper_opener"><MT_TRANS phrase="old tags(alphabetical)"></span>
+<span id="taghelper_count" onclick="TaggingHelper.open('count')" class="taghelper_opener"><MT_TRANS phrase="old tags(by rank)"></span>
 <span id="taghelper_match" onclick="TaggingHelper.open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
 <span id="taghelper_close" onclick="TaggingHelper.close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
