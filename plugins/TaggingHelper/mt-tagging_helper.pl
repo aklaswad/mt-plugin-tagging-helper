@@ -91,23 +91,22 @@ sub _build_html {
 </style>
 
 <script type="text/javascript">
-var taghelper_ready = 0;
-var taghelper_display = 0;
+var TaggingHelper = new Object();
 
-function taghelper_close() {
+TaggingHelper.close = function() {
     document.getElementById('taghelper_close').style.display = 'none';
     document.getElementById('tagging_helper_block').style.display = 'none';
 }
 
-function compareStrAscend(a, b){
+TaggingHelper.compareStrAscend = function (a, b){
     return a.localeCompare(b);
 }
 
-function quotemeta (string) {
+TaggingHelper.quotemeta = function (string) {
     return string.replace(/(\W)/, "\\$1");
 }
 
-function taghelper_open(mode) {
+TaggingHelper.open = function (mode) {
     document.getElementById('taghelper_close').style.display = 'inline';
     var block = document.getElementById('tagging_helper_block');
     if (block.style.display == 'none') {
@@ -123,13 +122,13 @@ function taghelper_open(mode) {
     else {
         var body = document.getElementById('editor-input-content').value + document.getElementById('editor-input-extended').value;
         for (var tag in tags ) {
-            var exp = new RegExp(quotemeta(tag));
+            var exp = new RegExp(this.quotemeta(tag));
             if (exp.test(body)) {
                 tagary.push(tag);
             }
         }
     }
-    tagary.sort(compareStrAscend);
+    tagary.sort(this.compareStrAscend);
 
     var v = document.getElementById('tags').value;
     var taglist = '';
@@ -137,10 +136,10 @@ function taghelper_open(mode) {
         var tag = tagary[i];
         var exp = new RegExp("^(.*, ?)?" + tag + "( ?\,.*)?$");
         if (exp.test(v)) {
-            taglist += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
+            taglist += '<span onclick="TaggingHelper.action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
         else {
-            taglist += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
+            taglist += '<span onclick="TaggingHelper.action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
     }
     block.innerHTML = taglist;    
@@ -148,7 +147,7 @@ function taghelper_open(mode) {
     taghelper_ready = 1;
 }
 
-function taghelper_action(s) {
+TaggingHelper.action = function (s) {
     var a = document.getElementById('taghelper_tag_' + s);
     
     var v = document.getElementById('tags').value;
@@ -174,9 +173,9 @@ function taghelper_action(s) {
 
 </script>
 <div id="tagging_helper_container">
-<span id="taghelper_all" onclick="taghelper_open('all')" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
-<span id="taghelper_match" onclick="taghelper_open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
-<span id="taghelper_close" onclick="taghelper_close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
+<span id="taghelper_all" onclick="TaggingHelper.open('all')" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
+<span id="taghelper_match" onclick="TaggingHelper.open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
+<span id="taghelper_close" onclick="TaggingHelper.close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
