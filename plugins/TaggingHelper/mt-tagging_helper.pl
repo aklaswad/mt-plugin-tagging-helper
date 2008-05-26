@@ -93,38 +93,57 @@ sub _build_html {
 <script type="text/javascript">
 var taghelper_ready = 0;
 var taghelper_display = 0;
-function taghelper_open() {
+
+function taghelper_close() {
+    document.getElementById('taghelper_close').style.display = 'none';
+    document.getElementById('tagging_helper_block').style.display = 'none';
+}
+
+function compareStrAscend(a, b){
+    return a.localeCompare(b);
+}
+
+function quotemeta (string) {
+    return string.replace(/(\W)/, "\\$1");
+}
+
+function taghelper_open(mode) {
+    document.getElementById('taghelper_close').style.display = 'inline';
     var block = document.getElementById('tagging_helper_block');
     if (block.style.display == 'none') {
         block.style.display = 'block';
     }
+
+    var tagary = new Array();
+    if (mode == 'all') {
+        for (var tag in tags ){
+            tagary.push(tag);
+        }
+    }
     else {
-        block.style.display = 'none';
+        var body = document.getElementById('editor-input-content').value + document.getElementById('editor-input-extended').value;
+        for (var tag in tags ) {
+            var exp = new RegExp(quotemeta(tag));
+            if (exp.test(body)) {
+                tagary.push(tag);
+            }
+        }
     }
-
-    if (taghelper_ready){ return }
-
-    function compareStrAscend(a, b){
-        return a.localeCompare(b);
-    }
-    var tagary = new Array;
-    for (var tag in tags ){
-        tagary.push(tag);
-    }
-    
     tagary.sort(compareStrAscend);
 
     var v = document.getElementById('tags').value;
+    var taglist = '';
     for (var i=0; i< tagary.length; i++) {
         var tag = tagary[i];
         var exp = new RegExp("^(.*, ?)?" + tag + "( ?\,.*)?$");
         if (exp.test(v)) {
-            block.innerHTML += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
+            taglist += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
         else {
-            block.innerHTML += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
+            taglist += '<span onclick="taghelper_action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
         }
     }
+    block.innerHTML = taglist;    
         
     taghelper_ready = 1;
 }
@@ -155,7 +174,9 @@ function taghelper_action(s) {
 
 </script>
 <div id="tagging_helper_container">
-<span onclick="taghelper_open()" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
+<span id="taghelper_all" onclick="taghelper_open('all')" class="taghelper_opener"><MT_TRANS phrase="old tags"></span>
+<span id="taghelper_match" onclick="taghelper_open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
+<span id="taghelper_close" onclick="taghelper_close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
