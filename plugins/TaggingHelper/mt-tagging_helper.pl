@@ -189,7 +189,7 @@ TaggingHelper.action = function (s) {
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
-    my $getbody3 = <<EOT;
+    my $getbody3 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 3.3
     return document.getElementById('text').value
@@ -197,7 +197,7 @@ TaggingHelper.getBody = function () {
          + document.getElementById('text_more').value;
 }
 EOT
-    my $getbody4 = <<EOT;
+    my $getbody4 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 4
     // FIXME:it has overhead. 
@@ -208,7 +208,7 @@ TaggingHelper.getBody = function () {
 EOT
 
     $html =~ s/__staticwebpath/$staticwebpath/;
-    my $body = ($mt_version =~ /^4/) ? $getbody4 : $getbody3;
+    my $getbody = ($mt_version =~ /^4/) ? $getbody4 : $getbody3;
     $html =~ s/__getbody/$getbody/;
     return $plugin->translate_templatized($html);
 }
