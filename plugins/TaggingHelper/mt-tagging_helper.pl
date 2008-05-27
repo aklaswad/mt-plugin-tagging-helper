@@ -110,9 +110,7 @@ TaggingHelper.quotemeta = function (string) {
     return string.replace(/(\W)/, "\\$1");
 }
 
-TaggingHelper.getBody = function () {
-
-}
+__getbody
 
 TaggingHelper.open = function (mode) {
     document.getElementById('taghelper_close').style.display = 'inline';
@@ -128,7 +126,7 @@ TaggingHelper.open = function (mode) {
         }
     }
     else {
-        var body = document.getElementById('editor-input-content').value + document.getElementById('editor-input-extended').value;
+        var body = this.getBody();
         for (var tag in tags ) {
             var exp = new RegExp(this.quotemeta(tag));
             if (exp.test(body)) {
@@ -191,7 +189,27 @@ TaggingHelper.action = function (s) {
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
+    my $getbody3 = <<EOT;
+TaggingHelper.getBody = function () {
+    // for MT 3.3
+    return document.getElementById('text').value
+         + '\n'
+         + document.getElementById('text_more').value;
+}
+EOT
+    my $getbody4 = <<EOT;
+TaggingHelper.getBody = function () {
+    // for MT 4
+    // FIXME:it has overhead. 
+    return document.getElementById('editor-input-content').value
+         + document.getElementById('editor-input-extended').value
+         + document.getElementById('editor-content-textarea').value;
+}
+EOT
+
     $html =~ s/__staticwebpath/$staticwebpath/;
+    my $body = ($mt_version =~ /^4/) ? $getbody4 : $getbody3;
+    $html =~ s/__getbody/$getbody/;
     return $plugin->translate_templatized($html);
 }
 
