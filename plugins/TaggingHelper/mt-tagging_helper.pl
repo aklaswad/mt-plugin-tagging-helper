@@ -200,10 +200,14 @@ EOT
     my $getbody4 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 4
-    // FIXME:it has overhead. 
-    return document.getElementById('editor-input-content').value
-         + document.getElementById('editor-input-extended').value
-         + document.getElementById('editor-content-textarea').value;
+    // both current editting field and hidden input fields.
+    // currently we don't care about duplication.
+    // but it's very nasty code. FIXME! 
+    return app.editor.getHTML()
+         + '\n'
+         + document.getElementById('editor-input-content').value
+         + '\n'
+         + document.getElementById('editor-input-extended').value;
 }
 EOT
 
