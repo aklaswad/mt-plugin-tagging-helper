@@ -91,6 +91,8 @@ sub _build_html {
 </style>
 
 <script type="text/javascript">
+// simple js syntax, because MT3 dosen't have useful js library.
+// just use RegExp.escape; same code are used both version. 
 var TaggingHelper = new Object();
 
 TaggingHelper.close = function() {
@@ -106,8 +108,17 @@ TaggingHelper.compareByCount = function (a, b){
     return tags[b] - tags[a];
 }
 
-TaggingHelper.quotemeta = function (string) {
-    return string.replace(/(\W)/, "\\$1");
+// FIXME: this has too many bugcase.
+TaggingHelper.wordify = function (string) {
+    return string.replace(/\W/, "_");
+}
+
+TaggingHelper.encodeHTML = function ( s ) {
+    s = s.replace( /\&/g, '&amp;' ); 
+    s = s.replace( /\</g, '&lt;' ); 
+    s = s.replace( /\>/g, '&gt;' ); 
+    s = s.replace( /\'/g, '&apos;' ); 
+    return s;
 }
 
 __getbody
@@ -128,7 +139,7 @@ TaggingHelper.open = function (mode) {
     else {
         var body = this.getBody();
         for (var tag in tags ) {
-            var exp = new RegExp(this.quotemeta(tag));
+            var exp = new RegExp(RegExp.escape(tag));
             if (exp.test(body)) {
                 tagary.push(tag);
             }
@@ -141,26 +152,30 @@ TaggingHelper.open = function (mode) {
 
     var v = document.getElementById('tags').value;
     var taglist = '';
+    var table = document.createElement('div');
+
     for (var i=0; i< tagary.length; i++) {
         var tag = tagary[i];
-        var exp = new RegExp("^(.*, ?)?" + tag + "( ?\,.*)?$");
-        if (exp.test(v)) {
-            taglist += '<span onclick="TaggingHelper.action(\'' + tag + '\')" class="taghelper_tag_selected", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
-        }
-        else {
-            taglist += '<span onclick="TaggingHelper.action(\'' + tag + '\')" class="taghelper_tag", id="taghelper_tag_' + tag + '">' + tag + ' </span>';
-        }
+        var e = document.createElement('span');
+        e.onclick   = TaggingHelper.action;
+        e.th_tag    = tag;
+        e.id        = 'taghelper_tag_' + this.wordify(tag);
+        e.innerHTML = this.encodeHTML(tag); 
+        var exp = new RegExp("^(.*, ?)?" + RegExp.escape(tag) + "( ?\,.*)?$");
+        e.className = (exp.test(v)) ? 'taghelper_tag_selected' : 'taghelper_tag';
+        table.appendChild(e);
     }
-    block.innerHTML = taglist;    
-        
-    taghelper_ready = 1;
+
+    while (block.childNodes.length) block.removeChild(block.childNodes.item(0));
+    block.appendChild(table);
 }
 
-TaggingHelper.action = function (s) {
-    var a = document.getElementById('taghelper_tag_' + s);
+TaggingHelper.action = function (e) {
+    var a = e.target;
+    var s = a.th_tag;
     
     var v = document.getElementById('tags').value;
-    var exp = new RegExp("^(.*, ?)?" + s + "( ?\,.*)?$");
+    var exp = new RegExp("^(.*, ?)?" + RegExp.escape(s) + "( ?\,.*)?$");
     if (exp.test(v)) {
         v = v.replace(exp, "$1$2");
         if (tag_delim == ',') {
@@ -182,8 +197,8 @@ TaggingHelper.action = function (s) {
 
 </script>
 <div id="tagging_helper_container">
-<span id="taghelper_abc" onclick="TaggingHelper.open('abc')" class="taghelper_opener"><MT_TRANS phrase="old tags(alphabetical)"></span>
-<span id="taghelper_count" onclick="TaggingHelper.open('count')" class="taghelper_opener"><MT_TRANS phrase="old tags(by rank)"></span>
+<span id="taghelper_abc" onclick="TaggingHelper.open('abc')" class="taghelper_opener"><MT_TRANS phrase="alphabetical"></span>
+<span id="taghelper_count" onclick="TaggingHelper.open('count')" class="taghelper_opener"><MT_TRANS phrase="count"></span>
 <span id="taghelper_match" onclick="TaggingHelper.open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
 <span id="taghelper_close" onclick="TaggingHelper.close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
@@ -200,9 +215,9 @@ EOT
     my $getbody4 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 4
-    // both current editting field and hidden input fields.
-    // currently we don't care about duplication.
-    // but it's very nasty code. FIXME! 
+    // get both current editting field and hidden input fields.
+    // currently i don't care about duplication.
+    // but it's very nasty. FIXME! 
     return app.editor.getHTML()
          + '\n'
          + document.getElementById('editor-input-content').value
