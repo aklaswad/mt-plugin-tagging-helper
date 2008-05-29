@@ -47,17 +47,11 @@ sub _build_html {
     line-height: 1.8em;
 }
 
-.tagging_helper_table {
-    cursor: Default;
-    text-align: left;
-    margin: 10px 0;
-    line-height: 1.8em;
-}
-
 .taghelper_tag {
     cursor: Default;
     color: #41687b;
     margin: 0 5px;
+    white-space: nowrap;
 }
 
 .taghelper_tag:hover {
@@ -71,6 +65,7 @@ sub _build_html {
     color: #41687b;
     background-color: #bcd;
     margin: 0 5px;
+    white-space: nowrap;
 }
 
 .taghelper_tag_selected:hover {
