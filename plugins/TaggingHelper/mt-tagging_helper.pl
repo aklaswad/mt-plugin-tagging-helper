@@ -64,8 +64,8 @@ sub _build_html {
 .taghelper_tag_selected {
     cursor: Default;
     color: #41687b;
-    margin: 0 5px;
     background-color: #bcd;
+    margin: 0 5px;
 }
 
 .taghelper_tag_selected:hover {
@@ -82,14 +82,8 @@ sub _build_html {
 
 .taghelper_command:hover {
     cursor: Pointer;
-    background-color: #bcd;
-}
-
-.taghelper_opener:hover {
-    cursor: Pointer;
     color: #a2ad00;
 }
-
 
 </style>
 
@@ -235,11 +229,10 @@ EOT
 sub hdlr_mt4_param {
     my ($eh, $app, $param, $tmpl) = @_;
     my $html = _build_html(); 
-    die 'something wrong...' unless UNIVERSAL::isa($tmpl, 'MT::Template');
- 
+    die 'something wrong...'
+        unless UNIVERSAL::isa($tmpl, 'MT::Template');
     my $host_node = $tmpl->getElementById('tags')
         or die 'cannot find tags field in the screen.';
-
     $host_node->innerHTML($host_node->innerHTML . $html);
     1;
 }
