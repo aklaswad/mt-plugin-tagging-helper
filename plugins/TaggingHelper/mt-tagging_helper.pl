@@ -109,11 +109,6 @@ TaggingHelper.compareByCount = function (a, b){
     return tags[b] - tags[a];
 }
 
-// FIXME: this has too many bugcase.
-TaggingHelper.wordify = function (string) {
-    return string.replace(/\W/, "_");
-}
-
 __getbody
 
 TaggingHelper.open = function (mode) {
@@ -151,7 +146,6 @@ TaggingHelper.open = function (mode) {
         var e = document.createElement('span');
         e.onclick   = TaggingHelper.action;
         e.th_tag    = tag;
-        e.id        = 'taghelper_tag_' + this.wordify(tag);
         e.appendChild( document.createTextNode(tag) );
         var exp = new RegExp("^(.*, ?)?" + RegExp.escape(tag) + "( ?\,.*)?$");
         e.className = (exp.test(v)) ? 'taghelper_tag_selected' : 'taghelper_tag';
