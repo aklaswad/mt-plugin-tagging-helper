@@ -52,7 +52,7 @@ sub _build_html {
 
 .taghelper_tag {
     cursor: Default;
-    color: #61889b;
+    color: #41687b;
     margin: 0 5px;
 }
 
@@ -65,7 +65,7 @@ sub _build_html {
     cursor: Default;
     color: #41687b;
     margin: 0 5px;
-    background-color: #def;
+    background-color: #bcd;
 }
 
 .taghelper_tag_selected:hover {
@@ -91,8 +91,9 @@ sub _build_html {
 </style>
 
 <script type="text/javascript">
-// simple js syntax, because MT3 dosen't have useful js library.
-// just use RegExp.escape; same code are used both version. 
+// simple js syntax, because MT3.3 dosen't have js library.
+// just use RegExp.escape; which appear both MT3.3 and MT4. 
+
 var TaggingHelper = new Object();
 
 TaggingHelper.close = function() {
@@ -111,14 +112,6 @@ TaggingHelper.compareByCount = function (a, b){
 // FIXME: this has too many bugcase.
 TaggingHelper.wordify = function (string) {
     return string.replace(/\W/, "_");
-}
-
-TaggingHelper.encodeHTML = function ( s ) {
-    s = s.replace( /\&/g, '&amp;' ); 
-    s = s.replace( /\</g, '&lt;' ); 
-    s = s.replace( /\>/g, '&gt;' ); 
-    s = s.replace( /\'/g, '&apos;' ); 
-    return s;
 }
 
 __getbody
@@ -153,14 +146,13 @@ TaggingHelper.open = function (mode) {
     var v = document.getElementById('tags').value;
     var taglist = '';
     var table = document.createElement('div');
-
     for (var i=0; i< tagary.length; i++) {
         var tag = tagary[i];
         var e = document.createElement('span');
         e.onclick   = TaggingHelper.action;
         e.th_tag    = tag;
         e.id        = 'taghelper_tag_' + this.wordify(tag);
-        e.innerHTML = this.encodeHTML(tag); 
+        e.appendChild( document.createTextNode(tag) );
         var exp = new RegExp("^(.*, ?)?" + RegExp.escape(tag) + "( ?\,.*)?$");
         e.className = (exp.test(v)) ? 'taghelper_tag_selected' : 'taghelper_tag';
         table.appendChild(e);
@@ -170,8 +162,10 @@ TaggingHelper.open = function (mode) {
     block.appendChild(table);
 }
 
-TaggingHelper.action = function (e) {
-    var a = e.target;
+TaggingHelper.action = function (evt) {
+    // IE-Firefox compatible
+    var e = evt || window.event;
+    var a = e.target || e.srcElement;
     var s = a.th_tag;
     
     var v = document.getElementById('tags').value;
