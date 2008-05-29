@@ -1,5 +1,3 @@
-# $Id$
-
 package MT::Plugin::TaggingHelper;
 
 use strict;
@@ -43,6 +41,13 @@ sub _build_html {
 }
 
 #tagging_helper_block {
+    cursor: Default;
+    text-align: left;
+    margin: 10px 0;
+    line-height: 1.8em;
+}
+
+.tagging_helper_table {
     cursor: Default;
     text-align: left;
     margin: 10px 0;
@@ -136,6 +141,7 @@ TaggingHelper.open = function (mode) {
     var v = document.getElementById('tags').value;
     var taglist = '';
     var table = document.createElement('div');
+    table.className = 'taghelper-table';
     for (var i=0; i< tagary.length; i++) {
         var tag = tagary[i];
         var e = document.createElement('span');
@@ -145,6 +151,7 @@ TaggingHelper.open = function (mode) {
         var exp = new RegExp("^(.*, ?)?" + RegExp.escape(tag) + "( ?\,.*)?$");
         e.className = (exp.test(v)) ? 'taghelper_tag_selected' : 'taghelper_tag';
         table.appendChild(e);
+        table.appendChild( document.createTextNode(' ') );
     }
 
     while (block.childNodes.length) block.removeChild(block.childNodes.item(0));
