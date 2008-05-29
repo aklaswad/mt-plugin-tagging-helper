@@ -33,7 +33,6 @@ else {
 }
 
 sub _build_html {
-    my ($staticwebpath) = @_;
     my $html = <<'EOT';
 <style type="text/css">
 
@@ -58,7 +57,8 @@ sub _build_html {
 
 .taghelper_tag:hover {
     cursor: Pointer;
-    color: #000;
+    color: #246;
+    text-decoration: underline;
 }
 
 .taghelper_tag_selected {
@@ -70,16 +70,19 @@ sub _build_html {
 
 .taghelper_tag_selected:hover {
     cursor: Pointer;
-    color: #000;
+    color: #246;
+    text-decoration: underline;
 }
 
-.taghelper_opener {
+.taghelper_command {
     cursor: Default;
     color: #61889b;
-    background-image: url(__staticwebpathimages/status_icons/create.gif);
-    background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 11px;
+    margin-left: 11px;
+}
+
+.taghelper_command:hover {
+    cursor: Pointer;
+    background-color: #bcd;
 }
 
 .taghelper_opener:hover {
@@ -97,7 +100,6 @@ sub _build_html {
 var TaggingHelper = new Object();
 
 TaggingHelper.close = function() {
-    document.getElementById('taghelper_close').style.display = 'none';
     document.getElementById('tagging_helper_block').style.display = 'none';
 }
 
@@ -112,7 +114,6 @@ TaggingHelper.compareByCount = function (a, b){
 __getbody
 
 TaggingHelper.open = function (mode) {
-    document.getElementById('taghelper_close').style.display = 'inline';
     var block = document.getElementById('tagging_helper_block');
     if (block.style.display == 'none') {
         block.style.display = 'block';
@@ -185,13 +186,14 @@ TaggingHelper.action = function (evt) {
 
 </script>
 <div id="tagging_helper_container">
-<span id="taghelper_abc" onclick="TaggingHelper.open('abc')" class="taghelper_opener"><MT_TRANS phrase="alphabetical"></span>
-<span id="taghelper_count" onclick="TaggingHelper.open('count')" class="taghelper_opener"><MT_TRANS phrase="count"></span>
-<span id="taghelper_match" onclick="TaggingHelper.open('match')" class="taghelper_opener"><MT_TRANS phrase="match tags"></span>
-<span id="taghelper_close" onclick="TaggingHelper.close()" class="taghelper_opener" style="display: none;"><MT_TRANS phrase="close"></span>
+    <span id="taghelper_abc" onclick="TaggingHelper.open('abc')" class="taghelper_command"><MT_TRANS phrase="alphabetical"></span>
+    <span id="taghelper_count" onclick="TaggingHelper.open('count')" class="taghelper_command"><MT_TRANS phrase="frequency"></span>
+    <span id="taghelper_match" onclick="TaggingHelper.open('match')" class="taghelper_command"><MT_TRANS phrase="match in body"></span>
+    <span id="taghelper_close" onclick="TaggingHelper.close()" class="taghelper_command"><MT_TRANS phrase="close"></span>
 <div id="tagging_helper_block" style="display: none;"></div>
 </div>
 EOT
+
     my $getbody3 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 3.3
@@ -200,6 +202,7 @@ TaggingHelper.getBody = function () {
          + document.getElementById('text_more').value;
 }
 EOT
+
     my $getbody4 = <<'EOT';
 TaggingHelper.getBody = function () {
     // for MT 4
@@ -214,7 +217,6 @@ TaggingHelper.getBody = function () {
 }
 EOT
 
-    $html =~ s/__staticwebpath/$staticwebpath/;
     my $getbody = ($mt_version =~ /^4/) ? $getbody4 : $getbody3;
     $html =~ s/__getbody/$getbody/;
     return $plugin->translate_templatized($html);
@@ -222,8 +224,7 @@ EOT
 
 sub hdlr_mt3_source {
     my ($eh, $app, $tmpl) = @_;
-    my $staticwebpath = $app->config('StaticWebPath');
-    my $html = _build_html($staticwebpath); 
+    my $html = _build_html(); 
     my $pattern = quotemeta(<<'EOT');
 <input name="tags" id="tags" tabindex="7" value="<TMPL_VAR NAME=TAGS ESCAPE=HTML>" onchange="setDirty()" />
 </div>
@@ -233,12 +234,11 @@ EOT
 
 sub hdlr_mt4_param {
     my ($eh, $app, $param, $tmpl) = @_;
-    my $staticwebpath = $app->config('StaticWebPath');
-    my $html = _build_html($staticwebpath); 
+    my $html = _build_html(); 
     die 'something wrong...' unless UNIVERSAL::isa($tmpl, 'MT::Template');
  
     my $host_node = $tmpl->getElementById('tags')
-        or die 'cannot get useful-links block';
+        or die 'cannot find tags field in the screen.';
 
     $host_node->innerHTML($host_node->innerHTML . $html);
     1;

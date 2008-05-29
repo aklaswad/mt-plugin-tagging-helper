@@ -10,8 +10,9 @@ use vars qw( %Lexicon );
 
 %Lexicon = (
     'description of TaggingHelper' => 'ブログ記事編集画面にタグ一覧を表示します。',
-    'old tags' => '過去のタグ',
-    'match tags' => '本文に一致するタグ',
+    'alphabetical' => 'ABC順',
+    'frequency'    => '利用頻度順',
+    'match in body' => '本文に一致',
 );
 
 1;
