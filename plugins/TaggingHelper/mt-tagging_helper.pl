@@ -7,7 +7,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.3';
+$VERSION = '0.31';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
