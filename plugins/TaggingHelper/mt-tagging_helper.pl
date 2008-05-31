@@ -222,7 +222,9 @@ sub hdlr_mt3_source {
     my ($eh, $app, $tmpl) = @_;
     my $html = _build_html(); 
     my $pattern = quotemeta(<<'EOT');
-<input name="tags" id="tags" tabindex="7" value="<TMPL_VAR NAME=TAGS ESCAPE=HTML>" onchange="setDirty()" />
+<!--[if lte IE 6.5]><div id="iehack"><![endif]-->
+<div id="tags_completion" class="full-width"></div>
+<!--[if lte IE 6.5]></div><![endif]-->
 </div>
 EOT
     $$tmpl =~ s!($pattern)!$1$html!;
