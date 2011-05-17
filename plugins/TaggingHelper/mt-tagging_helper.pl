@@ -7,7 +7,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.31';
+$VERSION = '0.4';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
@@ -23,7 +23,10 @@ my $plugin = new MT::Plugin::TaggingHelper({
 MT->add_plugin($plugin);
 
 my $mt_version = MT->version_number;
-if ($mt_version =~ /^4/){
+if ($mt_version =~ /^5/){
+    MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt5_param);
+}
+elsif ($mt_version =~ /^4/){
     MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt4_param);
 }
 else {
@@ -102,7 +105,7 @@ TaggingHelper.compareStrAscend = function (a, b){
 }
 
 TaggingHelper.compareByCount = function (a, b){
-    return tags[b] - tags[a];
+    return tags_json[b] - tags_json[a] || a.localeCompare(b);
 }
 
 __getbody
@@ -112,7 +115,7 @@ TaggingHelper.open = function (mode) {
     if (block.style.display == 'none') {
         block.style.display = 'block';
     }
-
+    var tags = tags_json;
     var tagary = new Array();
     if (mode == 'abc' || mode == 'count') {
         for (var tag in tags ){
@@ -204,7 +207,7 @@ TaggingHelper.getBody = function () {
     // for MT 4
     // get both current editting field and hidden input fields.
     // currently i don't care about duplication.
-    // but it's very nasty. FIXME! 
+    // but it's very nasty. FIXME!
     return app.editor.getHTML()
          + '\n'
          + document.getElementById('editor-input-content').value
@@ -213,7 +216,7 @@ TaggingHelper.getBody = function () {
 }
 EOT
 
-    my $getbody = ($mt_version =~ /^4/) ? $getbody4 : $getbody3;
+    my $getbody = ($mt_version =~ /^[45]/) ? $getbody4 : $getbody3;
     $html =~ s/__getbody/$getbody/;
     return $plugin->translate_templatized($html);
 }
@@ -232,12 +235,51 @@ EOT
 
 sub hdlr_mt4_param {
     my ($eh, $app, $param, $tmpl) = @_;
-    my $html = _build_html(); 
+    my $html = _build_html();
     die 'something wrong...'
         unless UNIVERSAL::isa($tmpl, 'MT::Template');
     my $host_node = $tmpl->getElementById('tags')
         or die 'cannot find tags field in the screen.';
     $host_node->innerHTML($host_node->innerHTML . $html);
+    1;
+}
+
+sub hdlr_mt5_param {
+    my ($eh, $app, $param, $tmpl) = @_;
+    my $html = _build_html();
+    die 'something wrong...'
+        unless UNIVERSAL::isa($tmpl, 'MT::Template');
+    my $host_node = $tmpl->getElementById('tags')
+        or die 'cannot find tags field in the screen.';
+    $host_node->innerHTML($host_node->innerHTML . $html);
+    my $blog_id = $app->param('blog_id') or return 1;
+    my $entry_class = 'entry';
+    my $iter = MT->model('objecttag')->count_group_by(
+        {   blog_id           => $blog_id,
+            object_datasource => 'entry',
+        },
+        {   sort      => 'cnt',
+            direction => 'ascend',
+            group     => ['tag_id'],
+            join      => MT::Entry->join_on(
+                undef,
+                {   class => $entry_class,
+                    id    => \'= objecttag_object_id',
+                }
+            ),
+        },
+    );
+    my %tag_counts;
+    while ( my ( $cnt, $id ) = $iter->() ) {
+        $tag_counts{$id} = $cnt;
+    }
+    my %tags = map { $_->name => $tag_counts{ $_->id } } MT->model('tag')->load({ id => [ keys %tag_counts ] });
+    my $tags_json = MT::Util::to_json( \%tags );
+    $param->{js_include} .= qq{
+        <script type="text/javascript">
+            var tags_json = $tags_json;
+        </script>
+    };
     1;
 }
 
