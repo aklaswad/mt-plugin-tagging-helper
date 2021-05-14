@@ -7,7 +7,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.4';
+$VERSION = '0.41';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
@@ -23,8 +23,11 @@ my $plugin = new MT::Plugin::TaggingHelper({
 MT->add_plugin($plugin);
 
 my $mt_version = MT->version_number;
-if ($mt_version =~ /^5/){
+if ($mt_version =~ /^6/){
     MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt5_param);
+}
+elsif ($mt_version =~ /^5/){
+   MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt5_param);
 }
 elsif ($mt_version =~ /^4/){
     MT->add_callback('template_param.edit_entry', 9, $plugin, \&hdlr_mt4_param);
@@ -254,10 +257,11 @@ sub hdlr_mt5_param {
     $host_node->innerHTML($host_node->innerHTML . $html);
     my $blog_id = $app->param('blog_id') or return 1;
     my $entry_class = 'entry';
+    my %terms;
+#    $terms{blog_id}           = $blog_id;
+    $terms{object_datasource} = 'entry';
     my $iter = MT->model('objecttag')->count_group_by(
-        {   blog_id           => $blog_id,
-            object_datasource => 'entry',
-        },
+        \%terms,
         {   sort      => 'cnt',
             direction => 'ascend',
             group     => ['tag_id'],
