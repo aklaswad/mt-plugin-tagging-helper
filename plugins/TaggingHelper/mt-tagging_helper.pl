@@ -7,7 +7,7 @@ use MT::Plugin;
 
 use vars qw($PLUGIN_NAME $VERSION);
 $PLUGIN_NAME = 'TaggingHelper';
-$VERSION = '0.5';
+$VERSION = '0.5.1';
 
 use MT;
 my $plugin = new MT::Plugin::TaggingHelper({
@@ -281,7 +281,7 @@ sub hdlr_mt5_param {
             group     => ['tag_id'],
             join      => MT::Entry->join_on(
                 undef,
-                {   class => $entry_class,
+                {   #class => $entry_class,
                     id    => \'= objecttag_object_id',
                 }
             ),
@@ -326,7 +326,7 @@ sub hdlr_mt7_param_edit_entry {
             group     => ['tag_id'],
             join      => MT::Entry->join_on(
                 undef,
-                {   class => $entry_class,
+                {   #class => $entry_class,
                     id    => \'= objecttag_object_id',
                 }
             ),
