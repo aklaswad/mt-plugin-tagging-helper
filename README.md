@@ -1,12 +1,18 @@
 # 
-「Tagging helper」 - 「記事」「ウェブページ」にタグ候補を表示するプラグインです。
+「Tagging Helper」 - 「記事」「ウェブページ」にタグ候補を表示するプラグインです。
 ====
+
+これはMT7でも動きますが、コンテンツタイプには対応していません。  
+コンテンツタイプに対応したTagging Helperを別リポジトリにて公開しています。  
+
+**Tagging Helper for ContentData: MT7のコンテンツタイプに対応したタグ入力支援プラグイン**  
+[ARK-Web/mt-plugin-tagginghelper-for-contentdata](https://github.com/ARK-Web/mt-plugin-tagginghelper-for-contentdata)
 
 ## v0.5.1
 - 対応バージョン: MT6, MT7
 
 ### 概要
-- MT7対応
+- MT7暫定対応
   - 記事とウェブページについて、MT7で動くようにした。
   - コンテンツタイプには非対応。
 
